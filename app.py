@@ -8,7 +8,6 @@ from marshmallow.exceptions import ValidationError
 from model.piece import create_piece, delete_piece, edit_piece, get_pieces
 
 # TODO:
-# - editing tags (assignments, and tags themselves)
 # - resource URLs in responses
 
 
@@ -66,8 +65,13 @@ def piece(slug=None):
             original_piece["body"] = params["body"]
         if "title" in params.keys():
             original_piece["title"] = params["title"]
+        if "tags" in params.keys():
+            original_piece["tags"] = params["tags"]
         edited_piece = edit_piece(
-            slug=slug, body=original_piece["body"], title=original_piece["title"]
+            slug=slug,
+            body=original_piece["body"],
+            title=original_piece["title"],
+            tags=original_piece["tags"],
         )
         return edited_piece
 
