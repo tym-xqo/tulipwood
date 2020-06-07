@@ -9,7 +9,7 @@ def create_piece(body, title=None, tags=[]):
     piece_sql = (
         "insert into piece (slug, title, body)"
         "  values (:slug, :title, :body) "
-        "returning piece_id, slug;"
+        "returning piece_id"
     )
     save_piece = db.result(piece_sql, slug=slug, title=title, body=body)[0]
 
@@ -53,6 +53,7 @@ def get_pieces(slug=None, tag=None):
         "     , body"
         "     , array_agg(tag) as tags"
         "     , p.created_at"
+        "     , p.updated_at"
         " from piece p left"
         " join x_piece_tag x using (piece_id) left"
         " join tag using (tag_id) "
@@ -70,22 +71,40 @@ def get_pieces(slug=None, tag=None):
     return result
 
 
-def edit_piece(slug, body, title=None):
-    # TODO: include way to update tags (or maybe that's another function?)
-    instance = get_pieces(slug=slug)[0]
-    if instance:
-        sql = (
-            "update piece "
-            "   set title = :title"
-            "     , body = :body"
-            "     , updated_at = now()"
-            " where slug = :slug "
-            "returning slug, title, body, updated_at"
+def edit_piece(slug, body, title=None, tags=[]):
+    piece_sql = (
+        "update piece "
+        "   set title = :title"
+        "     , body = :body"
+        "     , updated_at = now()"
+        " where slug = :slug "
+        "returning piece_id"
+    )
+    save_piece = db.result(piece_sql, slug=slug, title=title, body=body)[0]
+    tag_sql = (
+        "insert into tag (tag)"
+        "  values (:tag) "
+        "on conflict (tag) do update "
+        "set tag = :tag "
+        "returning tag_id"
+    )
+    piece_tag_sql = "insert into x_piece_tag values (:piece_id, :tag_id)"
+
+    if tags:
+        db.result(
+            "delete from x_piece_tag where piece_id = :piece_id",
+            piece_id=save_piece["piece_id"],
         )
-        save_piece = db.result(sql, slug=slug, title=title, body=body)[0]
-        return save_piece
-    else:
-        return {"error": f"Piece {slug} not found"}
+        for tag in tags:
+            save_tag = db.result(tag_sql, tag=tag)[0]
+            db.result(
+                piece_tag_sql,
+                piece_id=save_piece["piece_id"],
+                tag_id=save_tag["tag_id"],
+            )
+
+    result = get_pieces(slug=slug)[0]
+    return result
 
 
 if __name__ == "__main__":
@@ -94,5 +113,6 @@ if __name__ == "__main__":
         "soul-delay courier voodoo god girl"
     )
     tags = ["baz", "quux"]
-    p = create_piece(body=body, tags=tags)
+    slug = "582e283"
+    p = edit_piece(slug=slug, body=body, tags=tags)
     print(p)
