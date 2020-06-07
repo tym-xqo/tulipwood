@@ -57,21 +57,13 @@ def piece(slug=None):
     elif request.method == "PUT":
         params = request.json or request.args.to_dict()
         try:
-            original_piece = get_pieces(slug=slug)[0]
+            piece = get_pieces(slug=slug)[0]
         except IndexError:
             return jsonify({"error": f"Piece {slug} not found"}), 404
-        # TODO: surely this can be some sort of map-y thingo instead
-        if "body" in params.keys():
-            original_piece["body"] = params["body"]
-        if "title" in params.keys():
-            original_piece["title"] = params["title"]
-        if "tags" in params.keys():
-            original_piece["tags"] = params["tags"]
+
+        piece.update(params)
         edited_piece = edit_piece(
-            slug=slug,
-            body=original_piece["body"],
-            title=original_piece["title"],
-            tags=original_piece["tags"],
+            slug=slug, body=piece["body"], title=piece["title"], tags=piece["tags"],
         )
         return edited_piece
 
@@ -81,3 +73,8 @@ def piece(slug=None):
             return jsonify(delete)
         except IndexError:
             return jsonify({"error": f"Piece {slug} not found"}), 404
+
+    else:
+        if slug:
+            return jsonify(get_pieces(slug=slug)[0])
+        return jsonify(get_pieces())
