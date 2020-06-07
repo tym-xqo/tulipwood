@@ -11,13 +11,14 @@ from setuptools import find_packages, setup, Command
 # Package meta-data.
 NAME = "Tulipwood"
 DESCRIPTION = "In which TYM makes a CMS out of raw SQL"
-URL = "https://github.com/tym-xqo/sqla-raw"
+URL = "https://github.com/tym-xqo/tulipwood"
 EMAIL = "thomas@yager-madden.com"
 AUTHOR = "Thomas Yager-Madden"
 REQUIRES_PYTHON = ">=3.6.0"
 VERSION = "0.0.3"
 
-REQUIRED = [i.strip() for i in open("requirements.in", "r").readlines()]
+with open("requirements.in", "r") as r:
+    REQUIRED = [i.strip() for i in r.readlines()]
 
 # The rest you shouldn't have to touch too much
 # ----------------------------------------------
@@ -30,15 +31,6 @@ try:
         long_description = "\n" + f.read()
 except FileNotFoundError:
     long_description = DESCRIPTION
-
-# Load the package's __version__.py module as a dictionary.
-about = {}
-if not VERSION:
-    project_slug = "raw"
-    with open(os.path.join(here, project_slug, "__version__.py")) as f:
-        exec(f.read(), about)
-else:
-    about["__version__"] = VERSION
 
 
 class UploadCommand(Command):
@@ -81,7 +73,7 @@ class UploadCommand(Command):
 # Apply above config values to actual setup
 setup(
     name=NAME,
-    version=about["__version__"],
+    version=VERSION,
     description=DESCRIPTION,
     long_description=long_description,
     long_description_content_type="text/markdown",
