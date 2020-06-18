@@ -52,7 +52,7 @@ def piece(slug=None):
         created = create_piece(
             body=params["body"], title=params["title"], tags=params["tags"]
         )
-        return jsonify(created[0])
+        return jsonify(created)
 
     elif request.method == "PUT":
         params = request.json or request.args.to_dict()
@@ -76,5 +76,5 @@ def piece(slug=None):
 
     else:
         if slug:
-            return jsonify(get_pieces(slug=slug)[0])
+            return jsonify(get_pieces(slug=slug))
         return jsonify(get_pieces())

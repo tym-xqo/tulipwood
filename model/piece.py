@@ -28,7 +28,7 @@ def create_piece(body, title=None, tags=[]):
             piece_tag_sql, piece_id=save_piece["piece_id"], tag_id=save_tag["tag_id"]
         )
 
-    result = get_pieces(slug=slug)[0]
+    result = get_pieces(slug=slug)
     return result
 
 
@@ -103,7 +103,7 @@ def edit_piece(slug, body, title=None, tags=[]):
                 tag_id=save_tag["tag_id"],
             )
 
-    result = get_pieces(slug=slug)[0]
+    result = get_pieces(slug=slug)
     return result
 
 
